@@ -4,6 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 const TIMEZONES = [
   { value: "UTC", label: "UTC" },
   { value: "America/New_York", label: "New York" },
+  { value: "America/Chicago", label: "Chicago" },
   { value: "America/Los_Angeles", label: "Los Angeles" },
   { value: "Europe/London", label: "London" },
   { value: "Europe/Paris", label: "Paris" },
