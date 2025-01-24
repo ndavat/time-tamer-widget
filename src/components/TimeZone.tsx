@@ -3,6 +3,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 const DEFAULT_TIMEZONES = [
   { value: "UTC", label: "UTC" },
@@ -16,11 +18,18 @@ const DEFAULT_TIMEZONES = [
   { value: "Australia/Sydney", label: "Sydney" },
 ];
 
+// List of all IANA timezone identifiers
+const ALL_TIMEZONES = Intl.supportedValuesOf('timeZone').map(tz => ({
+  value: tz,
+  label: tz.split("/").pop()?.replace("_", " ") || tz,
+}));
+
 export const TimeZone = () => {
   const [selectedZone, setSelectedZone] = useState(DEFAULT_TIMEZONES[0].value);
   const [time, setTime] = useState(new Date());
   const [customTimezone, setCustomTimezone] = useState("");
   const [timezones, setTimezones] = useState(DEFAULT_TIMEZONES);
+  const [open, setOpen] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -45,15 +54,15 @@ export const TimeZone = () => {
     }
   };
 
-  const addCustomTimezone = () => {
-    if (!customTimezone) return;
+  const addCustomTimezone = (timezoneToAdd: string = customTimezone) => {
+    if (!timezoneToAdd) return;
 
     try {
       // Test if the timezone is valid
-      new Date().toLocaleString("en-US", { timeZone: customTimezone });
+      new Date().toLocaleString("en-US", { timeZone: timezoneToAdd });
       
       // Check if timezone already exists
-      if (timezones.some(tz => tz.value === customTimezone)) {
+      if (timezones.some(tz => tz.value === timezoneToAdd)) {
         toast({
           title: "Timezone already exists",
           description: "This timezone is already in the list.",
@@ -64,12 +73,13 @@ export const TimeZone = () => {
 
       // Add new timezone
       const newTimezone = {
-        value: customTimezone,
-        label: customTimezone.split("/").pop()?.replace("_", " ") || customTimezone,
+        value: timezoneToAdd,
+        label: timezoneToAdd.split("/").pop()?.replace("_", " ") || timezoneToAdd,
       };
       
       setTimezones([...timezones, newTimezone]);
       setCustomTimezone("");
+      setOpen(false);
       toast({
         title: "Timezone added",
         description: "New timezone has been added to the list.",
@@ -88,13 +98,41 @@ export const TimeZone = () => {
       <h2 className="text-2xl font-bold mb-6 text-clock-display">World Clock</h2>
       
       <div className="flex gap-2 mb-4 w-full max-w-md">
-        <Input
-          placeholder="Add timezone (e.g., America/Toronto)"
-          value={customTimezone}
-          onChange={(e) => setCustomTimezone(e.target.value)}
-          className="flex-1"
-        />
-        <Button onClick={addCustomTimezone}>Add</Button>
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger asChild>
+            <Input
+              placeholder="Add timezone (e.g., America/Toronto)"
+              value={customTimezone}
+              onChange={(e) => setCustomTimezone(e.target.value)}
+              className="flex-1"
+            />
+          </PopoverTrigger>
+          <PopoverContent className="p-0" align="start">
+            <Command>
+              <CommandInput placeholder="Search timezone..." />
+              <CommandEmpty>No timezone found.</CommandEmpty>
+              <CommandGroup className="max-h-64 overflow-y-auto">
+                {ALL_TIMEZONES
+                  .filter(tz => 
+                    tz.value.toLowerCase().includes(customTimezone.toLowerCase()) ||
+                    tz.label.toLowerCase().includes(customTimezone.toLowerCase())
+                  )
+                  .map((tz) => (
+                    <CommandItem
+                      key={tz.value}
+                      onSelect={() => {
+                        setCustomTimezone(tz.value);
+                        addCustomTimezone(tz.value);
+                      }}
+                    >
+                      {tz.label} ({tz.value})
+                    </CommandItem>
+                  ))}
+              </CommandGroup>
+            </Command>
+          </PopoverContent>
+        </Popover>
+        <Button onClick={() => addCustomTimezone()}>Add</Button>
       </div>
 
       <Select value={selectedZone} onValueChange={setSelectedZone}>
