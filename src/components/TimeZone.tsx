@@ -1,7 +1,10 @@
 import { useState, useEffect } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 
-const TIMEZONES = [
+const DEFAULT_TIMEZONES = [
   { value: "UTC", label: "UTC" },
   { value: "America/New_York", label: "New York" },
   { value: "America/Chicago", label: "Chicago" },
@@ -14,8 +17,11 @@ const TIMEZONES = [
 ];
 
 export const TimeZone = () => {
-  const [selectedZone, setSelectedZone] = useState(TIMEZONES[0].value);
+  const [selectedZone, setSelectedZone] = useState(DEFAULT_TIMEZONES[0].value);
   const [time, setTime] = useState(new Date());
+  const [customTimezone, setCustomTimezone] = useState("");
+  const [timezones, setTimezones] = useState(DEFAULT_TIMEZONES);
+  const { toast } = useToast();
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -26,30 +32,84 @@ export const TimeZone = () => {
   }, []);
 
   const formatTimeForZone = (date: Date, timezone: string) => {
-    return date.toLocaleTimeString("en-US", {
-      timeZone: timezone,
-      hour12: true,
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-    });
+    try {
+      return date.toLocaleTimeString("en-US", {
+        timeZone: timezone,
+        hour12: true,
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      });
+    } catch (error) {
+      return "Invalid Timezone";
+    }
+  };
+
+  const addCustomTimezone = () => {
+    if (!customTimezone) return;
+
+    try {
+      // Test if the timezone is valid
+      new Date().toLocaleString("en-US", { timeZone: customTimezone });
+      
+      // Check if timezone already exists
+      if (timezones.some(tz => tz.value === customTimezone)) {
+        toast({
+          title: "Timezone already exists",
+          description: "This timezone is already in the list.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Add new timezone
+      const newTimezone = {
+        value: customTimezone,
+        label: customTimezone.split("/").pop()?.replace("_", " ") || customTimezone,
+      };
+      
+      setTimezones([...timezones, newTimezone]);
+      setCustomTimezone("");
+      toast({
+        title: "Timezone added",
+        description: "New timezone has been added to the list.",
+      });
+    } catch (error) {
+      toast({
+        title: "Invalid timezone",
+        description: "Please enter a valid IANA timezone identifier (e.g., 'America/Toronto')",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[300px] bg-clock-background rounded-lg shadow-lg p-8">
       <h2 className="text-2xl font-bold mb-6 text-clock-display">World Clock</h2>
+      
+      <div className="flex gap-2 mb-4 w-full max-w-md">
+        <Input
+          placeholder="Add timezone (e.g., America/Toronto)"
+          value={customTimezone}
+          onChange={(e) => setCustomTimezone(e.target.value)}
+          className="flex-1"
+        />
+        <Button onClick={addCustomTimezone}>Add</Button>
+      </div>
+
       <Select value={selectedZone} onValueChange={setSelectedZone}>
         <SelectTrigger className="w-48 mb-4">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
-          {TIMEZONES.map((zone) => (
+          {timezones.map((zone) => (
             <SelectItem key={zone.value} value={zone.value}>
               {zone.label}
             </SelectItem>
           ))}
         </SelectContent>
       </Select>
+      
       <div className="text-5xl font-mono text-clock-display">
         {formatTimeForZone(time, selectedZone)}
       </div>
