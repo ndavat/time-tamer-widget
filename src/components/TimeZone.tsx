@@ -2,11 +2,13 @@ import { useState, useEffect } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const TIMEZONES = [
+  { value: "UTC", label: "UTC" },
   { value: "America/New_York", label: "New York" },
   { value: "America/Los_Angeles", label: "Los Angeles" },
   { value: "Europe/London", label: "London" },
   { value: "Europe/Paris", label: "Paris" },
   { value: "Asia/Tokyo", label: "Tokyo" },
+  { value: "Asia/Kolkata", label: "Mumbai" },
   { value: "Australia/Sydney", label: "Sydney" },
 ];
 
