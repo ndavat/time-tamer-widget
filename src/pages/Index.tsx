@@ -10,14 +10,14 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-4xl font-bold text-center mb-8 text-clock-display">VClock Clone</h1>
+        <h1 className="text-4xl font-bold text-center mb-8 text-clock-display">World Clock</h1>
         <Tabs defaultValue="clock" className="w-full">
           <TabsList className="grid w-full grid-cols-5 mb-8">
             <TabsTrigger value="clock">Clock</TabsTrigger>
             <TabsTrigger value="alarm">Alarm</TabsTrigger>
             <TabsTrigger value="timer">Timer</TabsTrigger>
             <TabsTrigger value="stopwatch">Stopwatch</TabsTrigger>
-            <TabsTrigger value="timezone">World Clock</TabsTrigger>
+            <TabsTrigger value="timezone">Timezone</TabsTrigger>
           </TabsList>
           <TabsContent value="clock">
             <Clock />
