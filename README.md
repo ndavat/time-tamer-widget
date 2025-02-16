@@ -62,8 +62,8 @@ This project is built with .
 
 ## How can I deploy this project?
 
-Simply open [Lovable](https://lovable.dev/projects/e494d90f-b6b3-4abe-abd8-8d4d045e0703) and click on Share -> Publish.
+$ npm install && npm run build
 
-## I want to use a custom domain - is that possible?
+## Publish Directory project?
 
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+dist
